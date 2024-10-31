@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bert-chat-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bert-chat
+  template:
+    metadata:
+      labels:
+        app: bert-chat
+    spec:
+      containers:
+      - name: bert-chat-container
+        image: bert-chat
+        ports:
+        - containerPort: 8888

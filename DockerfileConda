@@ -1,0 +1,25 @@
+FROM continuumio/miniconda3
+
+# Set conda to retry 3 times on failure
+RUN conda config --set remote_max_retries 3
+
+# Optionally install mamba for faster package management
+RUN conda install -c conda-forge mamba
+
+# Install PyTorch CPU and NumPy
+RUN mamba install -c conda-forge pytorch-cpu numpy --platform linux-aarch64
+
+# Install other necessary packages
+RUN mamba install -c conda-forge fastapi uvicorn
+RUN mamba install -c huggingface transformers
+RUN mamba install -c conda-forge huggingface_hub
+
+
+# Pre-load the model and tokenizer
+RUN python3 -c "from transformers import AutoModel;AutoModel.from_pretrained('bert-base-uncased')"
+RUN python3 -c "from transformers import AutoTokenizer;AutoTokenizer.from_pretrained('bert-base-uncased')"
+
+
+# Expose port and start the server
+EXPOSE 8888
+ENTRYPOINT ["transformers-cli", "serve", "--port=8888", "--host=0.0.0.0", "--task=fill-mask", "--model=bert-base-uncased"]
